@@ -199,6 +199,24 @@ def cmd_badge(args) -> int:
     return 0
 
 
+def cmd_ask_repo(args) -> int:
+    import askrepo
+
+    question = " ".join(args.question)
+    print(f"[warden] scanning {args.repo_path} (embed={args.embed_model or 'lexical'})...",
+          file=sys.stderr)
+    res = askrepo.answer_question(
+        question, Path(args.repo_path), top_k=args.top_k,
+        model=args.model, embed_model=args.embed_model,
+    )
+    print(res["answer"])
+    if res.get("citations"):
+        print("\ncitations:")
+        for c in res["citations"]:
+            print(f"  {c}")
+    return 0
+
+
 def main() -> int:
     toml = load_app_config()
     default_model = resolve_preset(
@@ -247,6 +265,14 @@ def main() -> int:
     sp.add_argument("--days", type=int, default=None)
     sp.add_argument("--db", default=None)
     sp.set_defaults(fn=cmd_badge)
+
+    sp = sub.add_parser("ask-repo", help="Ask about a local repo (local RAG, offline-capable)")
+    sp.add_argument("repo_path")
+    sp.add_argument("question", nargs="+")
+    sp.add_argument("--top-k", type=int, default=6)
+    sp.add_argument("--embed-model", default=os.environ.get("WARDEN_EMBED_MODEL"),
+                    help="e.g. nomic-embed-text (default: lexical retrieval)")
+    sp.set_defaults(fn=cmd_ask_repo)
 
     args = p.parse_args()
     return args.fn(args)
