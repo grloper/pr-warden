@@ -116,7 +116,10 @@ Cloud presets only need an API key in `.env` — no code changes.
 
 - **Webhook mode** (default): always-on GitHub App, auto-reviews every PR.
 - **CLI mode**: review on demand — `warden review <pr-url>`.
-- **Action mode**: GitHub Action per repo (no server needed; cloud model).
+- **Action mode** *(opt-in, cloud model)*: per-repo GitHub Action, no server —
+  set repo variable `WARDEN_ACTION=true` plus an `OPENAI_API_KEY`/`ANTHROPIC_API_KEY`
+  secret (see `.github/workflows/pr-warden.yml`). Off by default so it never
+  double-reviews repos that already run the webhook App.
 
 ---
 
