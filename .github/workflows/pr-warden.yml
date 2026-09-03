@@ -1,10 +1,24 @@
 name: PR-Warden Review
 
+# Action mode: an optional, cloud-model reviewer that runs entirely on GitHub
+# runners — no self-hosted server needed. It is OPT-IN so it never breaks the
+# PR checks of repos that run PR-Warden in webhook mode (the installed App
+# already reviews there; running both would double-review).
+#
+# Enable it per repo:
+#   1. Repository variable  WARDEN_ACTION=true
+#   2. Secret               OPENAI_API_KEY (or ANTHROPIC_API_KEY / GEMINI_API_KEY)
+#   3. Optional variable    WARDEN_MODEL (default gpt-4o)
+#
+# Image note: upstream publishes its containers on Docker Hub
+# (`codiumai/pr-agent:github_action`) — the ghcr.io path is not public.
+
 on:
   pull_request:
     types: [opened, reopened, ready_for_review, synchronize]
   issue_comment:
     types: [created, edited]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,12 +28,15 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/'))
+    if: >-
+      (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+       || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/')))
+      && vars.WARDEN_ACTION == 'true'
     steps:
       - uses: actions/checkout@v4
 
-      - name: PR-Warden review
-        uses: docker://ghcr.io/the-pr-agent/pr-agent:latest
+      - name: PR-Warden review (cloud model)
+        uses: docker://codiumai/pr-agent:github_action
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}   # or ANTHROPIC_API_KEY / GEMINI_API_KEY
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
