@@ -72,9 +72,55 @@ def main() -> None:
     settings.set("GITHUB.APP_ID", str(raw_app_id).strip())
     print(f"[warden] app_id={settings.github.app_id!r} model={settings.config.model}", flush=True)
 
+    _attach_insights_recorder()
+
     from pr_agent.servers.github_app import start
 
     start()
+
+
+def _attach_insights_recorder() -> None:
+    """Record every webhook delivery in the local insights ledger.
+
+    Best effort: if the engine's app or the recorder middleware can't load,
+    the server still starts normally (recording is optional telemetry).
+    """
+    try:
+        import time as _time
+
+        import insights
+        from fastapi import Request
+        from starlette.middleware.base import BaseHTTPMiddleware
+        from pr_agent.servers.github_app import app as engine_app
+
+        class _Recorder(BaseHTTPMiddleware):
+            async def dispatch(self, request: Request, call_next):
+                t0 = _time.monotonic()
+                response = await call_next(request)
+                latency_ms = int((_time.monotonic() - t0) * 1000)
+                repo = action = event = None
+                try:
+                    payload = await request.json()
+                    repo = (payload.get("repository") or {}).get("full_name")
+                    action = payload.get("action")
+                except Exception:  # noqa: BLE001 - body may be empty/non-JSON
+                    pass
+                event = request.headers.get("X-GitHub-Event")
+                try:
+                    insights.record(
+                        source="server", kind="webhook", repo=repo,
+                        pr=None, model=None, rc=response.status_code,
+                        latency_ms=latency_ms,
+                        detail=f"{event} {action}".strip() or request.url.path,
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
+                return response
+
+        engine_app.add_middleware(_Recorder)
+        print("[warden] insights recorder attached", flush=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"[warden] insights recorder unavailable: {e}", flush=True)
 
 
 def console_entry() -> None:
