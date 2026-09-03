@@ -10,7 +10,7 @@ from validate_config import validate  # noqa: E402
 class ValidateConfigTest(unittest.TestCase):
     def test_valid_config_passes(self):
         problems = validate(
-            app_id="4818633",
+            app_id="1234567",
             private_key="-----BEGIN RSA PRIVATE KEY-----\nMII...\n-----END RSA PRIVATE KEY-----",
             webhook_secret="s3cr3t",
             model="ollama/qwen2.5-coder:14b",
@@ -18,7 +18,7 @@ class ValidateConfigTest(unittest.TestCase):
         self.assertEqual(problems, [])
 
     def test_int_app_id_is_rejected(self):
-        problems = validate(app_id=4818633, private_key="-----BEGIN RSA PRIVATE KEY-----", webhook_secret="s", model="m")
+        problems = validate(app_id=1234567, private_key="-----BEGIN RSA PRIVATE KEY-----", webhook_secret="s", model="m")
         self.assertTrue(any("must be a string" in p for p in problems))
 
     def test_missing_app_id_is_rejected(self):
