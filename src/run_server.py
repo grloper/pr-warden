@@ -77,5 +77,11 @@ def main() -> None:
     start()
 
 
+def console_entry() -> None:
+    import sys
+
+    sys.exit(main())
+
+
 if __name__ == "__main__":
     main()

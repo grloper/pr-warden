@@ -1,37 +1,20 @@
-# ─────────────────────────────────────────────────────────────
-# PR-Warden runtime configuration (example).
-# Copy to config/warden.toml and edit. NEVER commit real secrets.
-# ─────────────────────────────────────────────────────────────
+# ----------------------------------------------------------------------------
+# PR-Warden configuration (example). Copy to config/warden.toml and edit.
+# NEVER commit real secrets.
+#
+# What actually reads this file:
+#   [model] preset  -> `warden` CLI default preset (CLI flag and WARDEN_PRESET
+#                      env var win over this file)
+#   [server] port   -> `warden health` / `warden server` default port (PORT env wins)
+#
+# Everything else (GitHub App credentials, model backend, webhook secret) is
+# runtime configuration supplied via .env / environment / docker-compose --
+# see .env.example. Keep secrets out of this file.
+# ----------------------------------------------------------------------------
 
 [model]
 # Presets: local-fast | local-thinking | openai | claude | gemini | custom
-# If preset is set, it overrides model/provider below.
 preset = "local-fast"
-
-# ── Custom model (used when preset = "custom") ────────────────
-# model = "ollama/qwen2.5-coder:14b"
-# provider = "ollama"          # ollama | openai | anthropic | google | custom
-# api_base = "http://127.0.0.1:11434"
-# max_tokens = 32000
 
 [server]
 port = 3000
-host = "0.0.0.0"
-
-[github]
-# Filled automatically by setup (setup.sh / setup.ps1) or set manually.
-# app_id = 12345678
-# app_name = "pr-warden"
-# webhook_secret = "changeme"
-# private_key_path = ".secrets/pr-warden.pem"
-
-[github_app]
-# Auto commands run on PR open/reopen/ready-for-review
-handle_pr_actions = ["opened", "reopened", "ready_for_review"]
-pr_commands = ["/describe", "/review", "/improve"]
-
-[tunnel]
-# Preferred public tunnel: "tailscale-funnel" (permanent) | "ngrok" | "none"
-provider = "tailscale-funnel"
-# ngrok: leave empty to get an ephemeral URL, or set a static domain
-# ngrok_domain = ""

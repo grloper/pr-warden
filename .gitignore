@@ -1,28 +1,29 @@
-# ── Secrets & local state (NEVER commit) ──
+# ---- Secrets & local state (NEVER commit)
 .env
 .secrets/
 *.pem
 *.key
 manifest_code.txt
+.warden/
 
-# ── Python ──
+# ---- Python
 __pycache__/
 *.pyc
 .venv/
 venv/
 *.egg-info/
 
-# ── Runtime ──
+# ---- Runtime
 *.log
 start_all.cmd
 run_env.json
 /tmp/
 
-# ── Editors / OS ──
+# ---- Editors / OS
 .idea/
 .vscode/
 .DS_Store
 Thumbs.db
 
-# ── Docker ──
+# ---- Docker
 docker-data/

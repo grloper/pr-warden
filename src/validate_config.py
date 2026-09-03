@@ -104,5 +104,9 @@ def main() -> int:
     return 0
 
 
+def console_entry() -> None:
+    sys.exit(main())
+
+
 if __name__ == "__main__":
     sys.exit(main())

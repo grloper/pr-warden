@@ -9,8 +9,8 @@ comment before a human does. That's a feature, not a bug. 🛡️
 ```bash
 # Fork + clone, then:
 cp .env.example .env
-python3 -m venv .venv && ./.venv/bin/pip install -e .[dev]  # or use scripts/setup.sh
-python src/manifest.py create --base-url http://127.0.0.1:3000
+python3 -m venv .venv && ./.venv/bin/pip install -e .
+# or use scripts/setup.sh for the full guided setup
 ```
 
 ## Development workflow
