@@ -48,6 +48,34 @@ around it trivial**: GitHub App registration, tunnel, autostart, model
 switching, and multi-repo installation. You get the industry's best open
 reviewer with an operator-friendly, opinionated wrapper.
 
+## 🧰 What ships in the box
+
+Install once (`pip install -e .`) and you get console scripts plus a growing
+CLI:
+
+```console
+$ warden review <pr-url>        # full review (local engine by default)
+$ warden ask <pr-url> "…"       # PR-specific question
+$ warden ask-repo <path> "…"    # local repo Q&A with file:line citations (offline-capable)
+$ warden insights [--json]      # review-ledger metrics (your own numbers)
+$ warden digest                 # weekly markdown digest of activity
+$ warden badge --out badge.svg  # flat scorecard badge for your README
+$ warden health | server        # probe the webhook server / run it
+```
+
+- **One-shot setup** — `manifest capture` now finishes the handshake itself:
+  it exchanges the registration code and writes the App ID, private key and
+  webhook secret into `.secrets/` and `.env`. Register → capture → done.
+- **Insights ledger** (`~/.pr-warden/warden.db`) — every CLI run and every
+  webhook delivery is recorded locally. Nothing leaves your machine.
+- **Ask your codebase** — chunk-based retrieval over your repo; lexical by
+  default, optional Ollama embeddings (`WARDEN_EMBED_MODEL=nomic-embed-text`)
+  for semantic search.
+- **Per-repo tuning** — drop `.pr_agent.toml` into any reviewed repo to set
+  ignore labels/paths, custom instructions, and review depth (see
+  `.pr_agent.toml.example`).
+- **CI + tests** — unit tests run on Python 3.11–3.13 for every PR.
+
 ---
 
 ## 🧱 Architecture

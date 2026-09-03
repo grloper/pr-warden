@@ -1,0 +1,20 @@
+# Drop this file as `.pr_agent.toml` in any repository the Warden App reviews,
+# to tune reviews per repo (PR-Agent reads repo-level config). Copy-paste and
+# uncomment what you need - keys follow upstream PR-Agent naming.
+#
+# See https://pr-agent-docs.coffeedujour.com/ for the full key reference.
+
+[config]
+# ignore_pr_labels = ["dependencies", "no-review"]
+# ignore_pr_title = ["^WIP"]
+
+[pr_reviewer]
+# extra_instructions = "This is a library: flag breaking API changes prominently."
+# num_max_findings = 3
+
+[pr_description]
+# publish_description_as_comment = true
+
+[github_app]
+# handle_pr_actions = ["opened", "reopened", "ready_for_review"]
+# pr_commands = ["/describe", "/review", "/improve"]

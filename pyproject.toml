@@ -31,4 +31,4 @@ warden-validate = "validate_config:console_entry"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-py-modules = ["warden", "manifest", "run_server", "validate_config", "insights"]
+py-modules = ["warden", "manifest", "run_server", "validate_config", "insights", "askrepo"]
