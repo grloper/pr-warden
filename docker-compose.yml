@@ -1,0 +1,34 @@
+# ─────────────────────────────────────────────────────────────
+# PR-Warden — Docker deployment
+# Build:  docker compose up -d
+# Notes:  .env and .secrets/ are gitignored; populate before start.
+#         For local Ollama from inside the container, expose the host:
+#         OLLAMA_API_BASE=http://host.docker.internal:11434
+# ─────────────────────────────────────────────────────────────
+
+services:
+  warden:
+    build: .
+    container_name: pr-warden
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      OLLAMA_API_BASE: ${OLLAMA_API_BASE:-http://host.docker.internal:11434}
+      CONFIG__MODEL: ${WARDEN_MODEL:-ollama/qwen2.5-coder:14b}
+      GITHUB__APP_ID: ${GITHUB_APP_ID}
+      GITHUB__WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      GITHUB__DEPLOYMENT_TYPE: app
+      GITHUB_APP__OVERRIDE_DEPLOYMENT_TYPE: "true"
+      GITHUB__APP_NAME: ${GITHUB_APP_NAME:-pr-warden}
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: "1"
+    volumes:
+      - ./.secrets:/app/.secrets:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

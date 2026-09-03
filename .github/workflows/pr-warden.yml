@@ -1,0 +1,32 @@
+name: PR-Warden Review
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/'))
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PR-Warden review
+        uses: docker://ghcr.io/the-pr-agent/pr-agent:latest
+        env:
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}   # or ANTHROPIC_API_KEY / GEMINI_API_KEY
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFIG__MODEL: ${{ vars.WARDEN_MODEL || 'gpt-4o' }}
+          CONFIG__GIT_PROVIDER: github
+          CONFIG__IGNORE_PR_BRANCHES: ""               # optional comma list
+          github_action_config.auto_review: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
+          github_action_config.pr_actions: "['opened', 'reopened', 'ready_for_review', 'synchronize']"
