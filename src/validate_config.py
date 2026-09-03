@@ -11,7 +11,7 @@ Catches the classic deployment mistakes before they bite at runtime:
 * Webhook secret must be present for webhook (App) mode.
 
 Usage:
-    python src/validate_config.py [--app-id 4818633] [--key .secrets/p.pem]
+    python src/validate_config.py [--app-id 1234567] [--key .secrets/p.pem]
                                   [--secret s3cr3t] [--model ollama/x]
 Exit code 0 = OK, 1 = validation failed (message printed).
 """
@@ -32,7 +32,7 @@ def validate(app_id, private_key, webhook_secret, model, require_webhook=True):
     elif not isinstance(app_id, str):
         problems.append(
             f"GitHub App ID must be a string, got {type(app_id).__name__}. "
-            "PyJWT rejects int issuers; set it as a string (e.g. \"4818633\")."
+            "PyJWT rejects int issuers; set it as a string (e.g. \"1234567\")."
         )
     elif not app_id.strip().isdigit():
         problems.append(f"GitHub App ID should be numeric, got {app_id!r}.")
