@@ -1,0 +1,53 @@
+name: Verify
+
+# Standard verification gate: workflow lint + lint/type check + existing tests.
+# Steps marked continue-on-error fail today for reasons unrelated to this gate.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install actionlint
+        run: python -m pip install actionlint-py==1.7.12.25
+      - name: Lint workflows
+        run: actionlint
+
+  verify:
+    name: lint, type check, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install tools and dependencies
+        run: python -m pip install pytest ruff==0.17.0 mypy==2.4.0
+      - name: Ruff (pyflakes-class rules only)
+        run: ruff check --select E4,E7,E9,F --ignore F401,F541 src tests
+      - name: Mypy
+        continue-on-error: true  # non-blocking: fails today for pre-existing reasons
+        run: mypy --ignore-missing-imports src
+      - name: Byte-compile
+        run: python -m py_compile src/warden.py src/manifest.py src/run_server.py src/validate_config.py
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
