@@ -1,0 +1,18 @@
+# Run locally: pre-commit run --all-files
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.0
+    hooks:
+      - id: ruff-check
+        args: [--no-fix, --select, 'E4,E7,E9,F', --ignore, 'F401,F541']
+        files: '^(src|tests)/'
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.4.0
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        files: '^src/'
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
